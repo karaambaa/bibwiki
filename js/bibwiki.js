@@ -6,13 +6,14 @@
 // Made available under the terms of the GNU GPL v2 or any later version at your
 // option.
 //
+var language = "en";
 
 function pageNotFound() {
     alert("That page could not be found via the Wikipedia API. Sorry.");
 }
 
 function followRedirects(title, callback) {
-    var url = 'http://de.wikipedia.org/w/api.php?format=json&callback=?&action=query&redirects&titles=' + title;
+    var url = 'http://' + language + '.wikipedia.org/w/api.php?format=json&callback=?&action=query&redirects&titles=' + title;
     $.getJSON(url, function(apiResult){
         var pages = apiResult.query.pages;
         var page = Object.keys(pages)[0];
@@ -25,7 +26,7 @@ function followRedirects(title, callback) {
 }
 
 function getPageDetails(title, callback) {
-    var url = 'http://de.wikipedia.org/w/api.php?format=json&callback=?&action=query&prop=revisions&titles=' + title;
+    var url = 'http://' + language + '.wikipedia.org/w/api.php?format=json&callback=?&action=query&prop=revisions&titles=' + title;
     $.getJSON(url, function(apiResult){
         var pages = apiResult.query.pages;
         var page = Object.keys(pages)[0];
@@ -37,13 +38,19 @@ function getPageDetails(title, callback) {
     });
 }
 
+function getLanguage() {
+    var input = $('#input').val();
+    language = input.substring(input.indexOf('http://') + 7, input.indexOf('.wikipedia.org'));
+}
+
 function nameifyTitle(title) {
     return title.replace(" ", "_");
 }
 
 function updateBibtex() {
     var input = ($('#input').val()).substring(($('#input').val()).lastIndexOf("/") + 1);
-
+    
+    getLanguage()
     followRedirects(input, function(title) {
     getPageDetails(title, function(info) {
         $('#output').text('@misc{ wiki:' + nameifyTitle(info.title) + ',\n' +
